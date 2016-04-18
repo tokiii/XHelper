@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/addbusiness">
+
+    <include layout="@layout/layout_head"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:layout_marginTop="20dp"
+            android:id="@+id/et_business"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorFont"
+            android:background="@null"
+            android:hint="描述业务"/>
+
+
+        <ImageView
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/et_business"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:id="@+id/iv_business"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:src="@mipmap/ic_launcher"/>
+
+
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:scaleType="fitEnd"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/delete"/>
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>
