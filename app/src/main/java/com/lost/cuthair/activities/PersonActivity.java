@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -406,6 +407,9 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
      */
     private void save() {
         name = et_name.getText().toString();
+        if (TextUtils.isEmpty(et_name.getText())) {
+            name = "未命名";
+        }
         height = et_height.getText().toString();
         size = et_body_type.getText().toString();
         color = et_color.getText().toString();
