@@ -6,7 +6,7 @@
     <color name="colorFont">#959593</color>
     <color name="personFont">#696663</color>
     <color name="colorBackGround">#9fbc2c</color>
-    <color name="line">#a4a3a1</color>
+    <color name="line">#E1E1E1</color>
     <color name="page_back">#F0EFF5</color>
     <color name="business_head_back">#E7EECA</color>
 </resources>

@@ -1,6 +1,8 @@
 package com.lost.cuthair.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,13 +23,12 @@ import com.lost.cuthair.R;
 public class SideBar extends View {
 
 
-
     // 触摸事件
     private OnTouchingLetterChangedListener onTouchingLetterChangedListener;
     // 26个字母
-    public static String[] b = { "A", "B", "C", "D", "E", "F", "G", "H", "I",
+    public static String[] b = {"搜索", "A", "B", "C", "D", "E", "F", "G", "H", "I",
             "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
-            "W", "X", "Y", "Z", "#" };
+            "W", "X", "Y", "Z", "#"};
     private int choose = -1;// 选中
     private Paint paint = new Paint();
 
@@ -35,6 +36,7 @@ public class SideBar extends View {
 
     /**
      * 为SideBar设置显示字母的TextView
+     *
      * @param mTextDialog
      */
     public void setTextView(TextView mTextDialog) {
@@ -69,16 +71,27 @@ public class SideBar extends View {
             // paint.setColor(Color.WHITE);
             paint.setTypeface(Typeface.DEFAULT_BOLD);
             paint.setAntiAlias(true);
-            paint.setTextSize(20);
+            paint.setTextSize(30);
             // 选中的状态
             if (i == choose) {
                 paint.setColor(Color.parseColor("#3399ff"));
                 paint.setFakeBoldText(true);
             }
             // x坐标等于中间-字符串宽度的一半.
-            float xPos = width / 2 - paint.measureText(b[i]) / 2;
-            float yPos = singleHeight * i + singleHeight;
-            canvas.drawText(b[i], xPos, yPos, paint);
+
+            if (i == 0) {
+                Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.search_bar_icon_normal);
+                canvas.drawBitmap(mBitmap, 20,-15, paint);
+            } else {
+
+                float xPos = width / 2 - paint.measureText(b[i]) / 2;
+                float yPos = singleHeight * i + singleHeight;
+                canvas.drawText(b[i], xPos, yPos, paint);
+
+
+            }
+
+
             paint.reset();// 重置画笔
         }
 
@@ -138,7 +151,6 @@ public class SideBar extends View {
      * 接口
      *
      * @author coder
-     *
      */
     public interface OnTouchingLetterChangedListener {
         public void onTouchingLetterChanged(String s);

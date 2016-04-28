@@ -76,7 +76,6 @@
 
     <LinearLayout
         android:id="@+id/ll_add"
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:padding="10dp"
@@ -98,9 +97,9 @@
 
 
     <View
-        android:layout_marginRight="18dp"
+        android:layout_marginRight="25dp"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0.5dp"
         android:background="@color/line"/>
 
     <LinearLayout

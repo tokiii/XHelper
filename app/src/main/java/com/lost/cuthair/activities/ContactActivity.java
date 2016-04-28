@@ -1,7 +1,11 @@
 package com.lost.cuthair.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lost.cuthair.R;
 import com.lost.cuthair.adapters.SortAdapter;
@@ -160,6 +165,19 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
                 Intent intent = new Intent(ContactActivity.this, PersonActivity.class);
                 intent.putExtra("date", ((SortModel) adapter.getItem(position)).getDate());
                 startActivity(intent);
+            }
+        });
+
+
+        // 长按删除
+        sortListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                deleteDialog(ContactActivity.this, position).show();
+
+                return false;
             }
         });
 
@@ -368,5 +386,45 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         searchDb();
+    }
+
+
+
+    private void deletePersion(String date) {
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "person-db", null);
+        db = helper.getWritableDatabase();
+        daoMaster = new DaoMaster(db);
+        daoSession = daoMaster.newSession();
+        personDao = daoSession.getPersonDao();
+        personDao.delete(personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0));
+        Toast.makeText(this, "删除成功！", Toast.LENGTH_SHORT).show();
+
+    }
+
+
+    /**
+     * 提示是否删除
+     *
+     * @param context
+     * @return
+     */
+    private Dialog deleteDialog(final Context context, final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("删除用户");
+        builder.setMessage("确定删除么?");
+        builder.setPositiveButton("确定",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        deletePersion(((SortModel) adapter.getItem(position)).getDate());
+                        SourceDateList.remove(position);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+        builder.setNegativeButton("取消",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+        return builder.create();
     }
 }

@@ -130,6 +130,16 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
                     startActivityForResult(Intent.createChooser(galleryIntent, "选择图片"), SELECT_PICTURE);
                     break;
 
+
+                case R.id.btn_delete:
+
+                    // 设置图片为默认图片
+
+                    iv_business.setImageResource(R.mipmap.ic_launcher);
+                    image = "";// 清空图片路径
+
+                    break;
+
             }
         }
     };

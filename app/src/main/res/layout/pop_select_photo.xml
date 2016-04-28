@@ -27,6 +27,17 @@
         android:textColor="@android:color/white"
         android:text="拍照"/>
 
+
+    <Button
+        android:layout_marginTop="10dp"
+        android:id="@+id/btn_delete"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@drawable/button_shape"
+        android:layout_gravity="center"
+        android:textColor="@android:color/white"
+        android:text="删除"/>
+
     <Button
         android:layout_marginTop="10dp"
         android:id="@+id/btn_cancel"

@@ -50,7 +50,7 @@ public class BusinessRecordActivity extends AppCompatActivity {
         View footer = LayoutInflater.from(this).inflate(R.layout.list_footer, null);
         lv.addHeaderView(head);
         lv.addFooterView(footer);
-        middle.setVisibility(View.GONE);
+        middle.setText("客户资料");
         right.setVisibility(View.VISIBLE);
         left.setVisibility(View.VISIBLE);
         right.setText("新建");

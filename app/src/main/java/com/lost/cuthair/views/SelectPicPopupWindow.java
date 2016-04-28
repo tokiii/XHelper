@@ -22,6 +22,8 @@ public class SelectPicPopupWindow extends PopupWindow {
     private Button btn_select_photo;// 选择相册
     private Button btn_cancel;// 取消
 
+    private Button btn_delete;
+
     private View v;
 
     public SelectPicPopupWindow(Activity context, View.OnClickListener itemOnclick) {
@@ -30,6 +32,8 @@ public class SelectPicPopupWindow extends PopupWindow {
         v = inflater.inflate(R.layout.pop_select_photo, null);
         btn_select_photo = (Button) v.findViewById(R.id.btn_select_photo);
         btn_take_photo = (Button) v.findViewById(R.id.btn_take_photo);
+        btn_delete = (Button) v.findViewById(R.id.btn_delete);
+        btn_delete.setOnClickListener(itemOnclick);
         btn_take_photo.setOnClickListener(itemOnclick);
         btn_select_photo.setOnClickListener(itemOnclick);
 

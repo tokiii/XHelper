@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="业务记录"
+            android:text="业 务 记 录"
             android:textColor="@android:color/white"
             android:textSize="20dp" />
     </RelativeLayout>

@@ -1,12 +1,15 @@
 package com.lost.cuthair.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -70,6 +73,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
     private TextView tv_woman;
     private RadioButton rb_man;
     private RadioButton rb_woman;
+    private ImageView iv_call;
 
     private TextView middle;
     private AppCompatCheckBox right;
@@ -174,6 +178,8 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         tv_woman = (TextView) findViewById(R.id.tv_woman);
         rb_man = (RadioButton) findViewById(R.id.rb_man);
         rb_woman = (RadioButton) findViewById(R.id.rb_woman);
+        iv_call = (ImageView) findViewById(R.id.iv_call);
+        iv_call.setOnClickListener(this);
 
         rb_man.setChecked(true);
         sex = true;
@@ -286,6 +292,9 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
 
         switch (v.getId()) {
             case R.id.left:
+                if (isNewCreate && !isSave) {
+                    deletePersonAndBusiness();
+                }
                 finish();
 
                 break;
@@ -315,6 +324,24 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
 
                     }
                 }, 2016, 4,4).show();
+                break;
+
+            // 调用系统打电话功能
+            case R.id.iv_call:
+                if (!TextUtils.isEmpty(et_phone.getText())) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if(this.checkSelfPermission(Manifest.permission.CALL_PHONE)== PackageManager.PERMISSION_GRANTED) {
+                            Intent telIntent=new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+et_phone.getText().toString()));
+                            startActivity(telIntent);
+                        }else{
+                            //
+                        }
+                    }else{
+                        Intent telIntent=new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+et_phone.getText().toString()));
+                        startActivity(telIntent);
+                    }
+                }
                 break;
         }
 
@@ -443,6 +470,8 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onResume() {
         super.onResume();
+
+        setImageList();
 
     }
 
@@ -574,6 +603,32 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             right.setText("编辑");
         }
 
+
+    }
+
+    /**
+     * 从业务记录里面返回更新列表图片到界面
+     */
+    private void setImageList() {
+
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "business-db", null);
+        db = helper.getWritableDatabase();
+        daoMaster = new DaoMaster(db);
+        daoSession = daoMaster.newSession();
+        BusinessDao businessDao = daoSession.getBusinessDao();
+        List<Business> businesses =  businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
+
+        Log.i("info", "业务大小为....> " + businesses.size());
+        if (businesses.size() > 3) {
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic3, businesses.get(2).getImage());
+        } else if (businesses.size() == 1){
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
+        }else if (businesses.size() == 2) {
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
+        }
 
     }
 
