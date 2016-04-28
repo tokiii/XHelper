@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -78,15 +77,12 @@ public class BusinessAdapter extends BaseAdapter {
         ImageView iv_left = (ImageView) convertView.findViewById(R.id.iv_left);
         ImageView iv_right = (ImageView) convertView.findViewById(R.id.iv_right);
         RelativeLayout rl_group = (RelativeLayout) convertView.findViewById(R.id.rl_group);
-
-
-//        tv_time.setText(business.getDate().toString());
-        Uri imageUri = Uri.parse("file://" + business.getImage());
         if (lists.size()!=0 && position % 2 == 0) {
             ll_right.setVisibility(View.GONE);
             ll_left.setVisibility(View.VISIBLE);
             tv_left.setText(business.getBusinessInfo());
             if (business.getImage() != null) {
+                iv_left.setVisibility(View.VISIBLE);
                 DisplayImageOptions options = new DisplayImageOptions.Builder()
                         .showImageOnLoading(R.mipmap.ic_launcher)
                         .showImageOnFail(R.mipmap.ic_launcher)
@@ -96,6 +92,8 @@ public class BusinessAdapter extends BaseAdapter {
                         .build();
                 String imageUrl = ImageDownloader.Scheme.FILE.wrap(business.getImage());
                 imageLoader.displayImage(imageUrl, iv_left, options);
+            } else {
+                iv_left.setVisibility(View.GONE);
             }
             ll_left.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -143,6 +141,7 @@ public class BusinessAdapter extends BaseAdapter {
             ll_right.setVisibility(View.VISIBLE);
             tv_right.setText(business.getBusinessInfo());
             if (business.getImage() != null) {
+                iv_right.setVisibility(View.VISIBLE);
                 DisplayImageOptions options = new DisplayImageOptions.Builder()
                         .showImageOnLoading(R.mipmap.ic_launcher)
                         .showImageOnFail(R.mipmap.ic_launcher)
@@ -152,6 +151,8 @@ public class BusinessAdapter extends BaseAdapter {
                         .build();
                 String imageUrl = ImageDownloader.Scheme.FILE.wrap(business.getImage());
                 imageLoader.displayImage(imageUrl, iv_right, options);
+            }else {
+                iv_right.setVisibility(View.GONE);
             }
             ll_right.setOnClickListener(new View.OnClickListener() {
                 @Override
