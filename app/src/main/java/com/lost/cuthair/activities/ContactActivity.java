@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import com.lost.cuthair.R;
 import com.lost.cuthair.adapters.SortAdapter;
+import com.lost.cuthair.dao.Business;
+import com.lost.cuthair.dao.BusinessDao;
 import com.lost.cuthair.dao.DaoMaster;
 import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.dao.Person;
@@ -182,13 +184,8 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         });
 
 
+        // 搜索数据
         searchDb();
-        /*SourceDateList = filledData(getResources().getStringArray(R.array.date));
-
-        // 根据a-z进行排序源数据
-        Collections.sort(SourceDateList, pinyinComparator);
-        adapter = new SortAdapter(this, SourceDateList);
-        sortListView.setAdapter(adapter);*/
 
 
         mClearEditText = (TextView) findViewById(R.id.filter_edit);
@@ -355,7 +352,6 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     private DaoMaster daoMaster;
     private DaoSession daoSession;
     private static PersonDao personDao;
-    private Cursor cursor;
 
     /**
      * 查询数据库
@@ -389,15 +385,34 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-
-    private void deletePersion(String date) {
+    /**
+     * 删除
+     * @param date
+     */
+    private void deletePerson(String date) {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "person-db", null);
         db = helper.getWritableDatabase();
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
         personDao = daoSession.getPersonDao();
-        personDao.delete(personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0));
+        Person person = personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0);
+        personDao.delete(person);
+
+        DaoMaster.DevOpenHelper businessHelper = new DaoMaster.DevOpenHelper(this, "business-db", null);
+
+        db = businessHelper.getWritableDatabase();
+        daoMaster = new DaoMaster(db);
+        daoSession = daoMaster.newSession();
+        BusinessDao businessDao = daoSession.getBusinessDao();
+        List<Business> businesses = businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(person.getId())).list();
+        businessDao.deleteInTx(businesses);
+
         Toast.makeText(this, "删除成功！", Toast.LENGTH_SHORT).show();
+
+
+
+
+
 
     }
 
@@ -415,7 +430,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确定",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        deletePersion(((SortModel) adapter.getItem(position)).getDate());
+                        deletePerson(((SortModel) adapter.getItem(position)).getDate());
                         SourceDateList.remove(position);
                         adapter.notifyDataSetChanged();
                     }
