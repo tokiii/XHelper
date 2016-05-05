@@ -41,6 +41,7 @@
             <TextView
                 android:id="@+id/tv_left"
                 android:layout_width="50dp"
+                android:minHeight="50dp"
                 android:layout_height="wrap_content"
                 android:textSize="10sp"
                 android:text="又名又名 头发护理dgsgfgfsdgfdgdgfdsgdfggdfsgfsgfsssssggdfssgfsgdsgdfgfdsgfsdgsdfgfdgsd，常见的是修fdvdfgdfag剪头发，简称剪发，。"/>
@@ -87,6 +88,7 @@
                 android:id="@+id/tv_right"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:minHeight="50dp"
                 android:textSize="10sp"
                 android:text="又名 头发护理，常见fsdfdsfdsadsffsaf的是修剪头发，简称剪发，grdfgfdsgfdg。"/>
 

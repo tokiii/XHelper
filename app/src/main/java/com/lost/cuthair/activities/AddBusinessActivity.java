@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
+ *添加业务界面
  * Created by lost on 2016/4/13.
  */
 public class AddBusinessActivity extends AppCompatActivity implements View.OnClickListener {
