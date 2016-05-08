@@ -13,7 +13,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -37,6 +36,7 @@ import com.lost.cuthair.dao.PersonDao;
 import com.lost.cuthair.model.SortModel;
 import com.lost.cuthair.utils.CharacterParser;
 import com.lost.cuthair.utils.PinyinComparator;
+import com.lost.cuthair.utils.SharePreferenceUtils;
 import com.lost.cuthair.views.SideBar;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -49,7 +49,7 @@ import java.util.List;
  * 通讯录界面
  * Created by lost on 2016/4/12.
  */
-public class ContactActivity extends AppCompatActivity implements View.OnClickListener {
+public class ContactActivity extends BaseActivity implements View.OnClickListener {
 
     private ListView sortListView;
     private SideBar sideBar;
@@ -125,7 +125,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         ll_add_phone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                SharePreferenceUtils.put(ContactActivity.this, "personId", "0");
                 startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), 0);
             }
         });
@@ -134,6 +134,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         ll_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharePreferenceUtils.put(ContactActivity.this, "personId", "0");
                 startActivity(new Intent(ContactActivity.this, PersonActivity.class));
             }
         });
@@ -179,7 +180,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
 
                 deleteDialog(ContactActivity.this, position).show();
 
-                return false;
+                return true;
             }
         });
 
@@ -364,6 +365,8 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         daoSession = daoMaster.newSession();
         personDao = daoSession.getPersonDao();
         List<Person> lists = personDao.queryBuilder().list();
+
+        Log.i("info", "获得的列表数据大小为----->" + lists.size());
         if (lists.size() != 0) {
             persons = lists;
             SourceDateList = filledData(lists);
@@ -372,6 +375,8 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
             Collections.sort(SourceDateList, pinyinComparator);
             adapter = new SortAdapter(this, SourceDateList);
             sortListView.setAdapter(adapter);
+        }else {
+            sortListView.setAdapter(null);
         }
 
         helper.close();

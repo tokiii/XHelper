@@ -5,14 +5,13 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,7 +34,8 @@ import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.dao.Person;
 import com.lost.cuthair.dao.PersonDao;
 import com.lost.cuthair.utils.ImageUtils;
-import com.lost.cuthair.views.SelectPicPopupWindow;
+import com.lost.cuthair.utils.SharePreferenceUtils;
+import com.lost.cuthair.views.HeadChangePopWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -47,7 +47,7 @@ import java.util.List;
  * 个人信息界面
  * Created by lost on 2016/4/13.
  */
-public class PersonActivity extends AppCompatActivity implements View.OnClickListener {
+public class PersonActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView iv_head;
     private EditText et_name;
@@ -82,7 +82,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
     private final int SELECT_CAMERA = 101;
     private Uri imageUri;
 
-    private SelectPicPopupWindow picPopupWindow;
+    private HeadChangePopWindow picPopupWindow;
 
     private String name;
     private Boolean sex;
@@ -103,7 +103,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
     private String number;
     private String image;
     private String job;
-    public static long personId;
+    private long personId;
     private String date;
 
     private boolean isSave = false; //是否点击了保存
@@ -142,7 +142,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         /**
          * 适配数据
          */
-        setData();
+            setData();
     }
 
     // End Of Content View Elements
@@ -218,6 +218,8 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         pic1 = (ImageView) findViewById(R.id.iv_pic1);
         pic2 = (ImageView) findViewById(R.id.iv_pic2);
         pic3 = (ImageView) findViewById(R.id.iv_pic3);
+        iv_add = (ImageView) findViewById(R.id.iv_add);
+        iv_add.setOnClickListener(this);
 
         iv_head.setOnClickListener(this);
 
@@ -300,7 +302,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
                 break;
 
             case R.id.iv_head:
-                picPopupWindow = new SelectPicPopupWindow(this, itemOnclick);
+                picPopupWindow = new HeadChangePopWindow(this, itemOnclick);
                 picPopupWindow.showAtLocation(PersonActivity.this.findViewById(R.id.person), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
                 break;
 
@@ -342,6 +344,13 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
                         startActivity(telIntent);
                     }
                 }
+                break;
+
+            // 添加业务记录
+            case R.id.iv_add:
+                save();
+                Intent addBusinessIntent = new Intent(PersonActivity.this, AddBusinessActivity.class);
+                startActivity(addBusinessIntent);
                 break;
         }
 
@@ -410,16 +419,21 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 uri = imageUri;
             }
-            String[] proj = {MediaStore.Images.Media.DATA};
-            Cursor imageCursor = managedQuery(uri, proj, null, null, null);
-            int actual_image_column_index = imageCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            imageCursor.moveToFirst();
-            String img_path = imageCursor.getString(actual_image_column_index);
-            System.out.println("图片真实路径：" + img_path);
 
-            ImageUtils.setImageFromFilePath(img_path, iv_head);
-            image = img_path;
+            Log.i("info", "图片的URI------->" + uri);
 
+            // 是否是从图库选择图片
+            if (DocumentsContract.isDocumentUri(this, uri)){
+                ImageUtils.setImageFromFilePath(ImageUtils.getPath(this, uri), iv_head);
+                image = ImageUtils.getPath(this, uri);
+            }else {
+                ImageUtils.setImageFromFilePath(ImageUtils.selectImage(this, data), iv_head);
+                image = ImageUtils.selectImage(this, data);
+            }
+
+
+
+            Log.i("info", "图片的绝对路径------->" + ImageUtils.getPath(this, uri));
         }
     }
 
@@ -458,13 +472,16 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         person = setToPerson(person);
 
         Log.i("info", "person----number--->" + number);
-        if (isFromHome) {
+        if (isFromHome && getIntent().hasExtra("date")) {
             personDao.insertOrReplace(setToPerson(personDao.queryBuilder().where(PersonDao.Properties.Date.eq(getIntent().getStringExtra("date"))).list().get(0)));
-        } else {
+        } else if (personId != 0){
+            personDao.insertOrReplace(setToPerson(personDao.queryBuilder().where(PersonDao.Properties.Id.eq(personId)).list().get(0)));
+        }else {
             personDao.insert(person);
         }
         personId = personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0).getId();
-
+        Log.i("info", "保存的personId---->" + personId);
+        SharePreferenceUtils.put(this, "personId", String.valueOf(personId));
     }
 
     @Override
@@ -494,9 +511,8 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
      * 如果未保存，则删除数据
      */
     private void deletePersonAndBusiness() {
-        if (!isSave && date != null) {
-
-            Log.i("info", "是否删除了文件----->");
+        if (!isSave && isNewCreate) {
+            Log.i("info", "删除了文件");
             if (personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().size() != 0) {
                 personDao.delete(personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0));
                 DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "business-db", null);
@@ -518,8 +534,10 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView pic1;
     private ImageView pic2;
     private ImageView pic3;
+    private ImageView iv_add;
     private void setData() {
         if (getIntent().hasExtra("date") && !getIntent().hasExtra("name")) {
+            Log.i("info", "是否获得到数据---》" + getIntent().hasExtra("date"));
             isNewCreate = false;// 有数据表示不是新创建
             Person person = personDao.queryBuilder().where(PersonDao.Properties.Date.eq(getIntent().getStringExtra("date"))).list().get(0);
             name = person.getName();
@@ -544,6 +562,7 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             constellation = person.getConstellation();
 
             personId = person.getId();
+            Log.i("info", "设置界面获得personId--->" + personId);
 
             et_name.setText(name);
             et_job.setText(job);
@@ -586,13 +605,26 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
 
 
             Log.i("info", "业务大小为....> " + businesses.size());
+            Log.i("info", "personId....> " + personId);
             if (businesses.size() > 3) {
+                iv_add.setVisibility(View.GONE);
+                pic1.setVisibility(View.VISIBLE);
+                pic2.setVisibility(View.VISIBLE);
+                pic3.setVisibility(View.VISIBLE);
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic3, businesses.get(2).getImage());
             } else if (businesses.size() == 1){
+                iv_add.setVisibility(View.GONE);
+                pic1.setVisibility(View.VISIBLE);
+                pic2.setVisibility(View.GONE);
+                pic3.setVisibility(View.GONE);
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
             }else if (businesses.size() == 2) {
+                iv_add.setVisibility(View.GONE);
+                pic1.setVisibility(View.VISIBLE);
+                pic2.setVisibility(View.VISIBLE);
+                pic3.setVisibility(View.GONE);
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
                 ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
             }
@@ -619,13 +651,26 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         List<Business> businesses =  businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
 
         Log.i("info", "业务大小为....> " + businesses.size());
+        Log.i("info", "personId....> " + personId);
         if (businesses.size() > 3) {
+            iv_add.setVisibility(View.GONE);
+            pic1.setVisibility(View.VISIBLE);
+            pic2.setVisibility(View.VISIBLE);
+            pic3.setVisibility(View.VISIBLE);
             ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
             ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
             ImageUtils.useImageLoaderSetImage( imageLoader,pic3, businesses.get(2).getImage());
         } else if (businesses.size() == 1){
+            iv_add.setVisibility(View.GONE);
+            pic1.setVisibility(View.VISIBLE);
+            pic2.setVisibility(View.GONE);
+            pic3.setVisibility(View.GONE);
             ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
         }else if (businesses.size() == 2) {
+            iv_add.setVisibility(View.GONE);
+            pic1.setVisibility(View.VISIBLE);
+            pic2.setVisibility(View.VISIBLE);
+            pic3.setVisibility(View.GONE);
             ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
             ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
         }
@@ -668,7 +713,5 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
 
         return person;
     }
-
-
 
 }

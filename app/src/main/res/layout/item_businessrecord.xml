@@ -44,6 +44,8 @@
                 android:minHeight="50dp"
                 android:layout_height="wrap_content"
                 android:textSize="10sp"
+                android:ellipsize = "end"
+                android:maxLength="20"
                 android:text="又名又名 头发护理dgsgfgfsdgfdgdgfdsgdfggdfsgfsgfsssssggdfssgfsgdsgdfgfdsgfsdgsdfgfdgsd，常见的是修fdvdfgdfag剪头发，简称剪发，。"/>
 
             <ImageView
@@ -90,6 +92,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="50dp"
                 android:textSize="10sp"
+                android:maxLength="20"
+                android:ellipsize="end"
                 android:text="又名 头发护理，常见fsdfdsfdsadsffsaf的是修剪头发，简称剪发，grdfgfdsgfdg。"/>
 
             <ImageView

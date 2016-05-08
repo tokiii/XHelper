@@ -2,13 +2,12 @@ package com.lost.cuthair.activities;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.Gravity;
@@ -23,6 +22,7 @@ import com.lost.cuthair.dao.BusinessDao;
 import com.lost.cuthair.dao.DaoMaster;
 import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.utils.ImageUtils;
+import com.lost.cuthair.utils.SharePreferenceUtils;
 import com.lost.cuthair.views.SelectPicPopupWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -32,10 +32,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *添加业务界面
+ * 添加业务界面
  * Created by lost on 2016/4/13.
  */
-public class AddBusinessActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddBusinessActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView iv_business;
     private AppCompatEditText et_business;
@@ -135,7 +135,7 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
 
                     // 设置图片为默认图片
 
-                    iv_business.setImageResource(R.mipmap.ic_launcher);
+                    iv_business.setImageResource(R.mipmap.img_select_img);
                     image = "";// 清空图片路径
 
                     break;
@@ -158,8 +158,13 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
                 if (right.getText().equals("编辑")) {
                     enableEdit(); //设置可编辑状态
                     right.setText("保存");
-                }else {
+                } else {
                     saveOrUpdateBusiness();
+                  /*  if (AppManager.getAppManager().hasActivity(BusinessRecordActivity.class)){
+                        AppManager.getAppManager().finishActivity(BusinessRecordActivity.class);
+                    }
+                    Intent businessIntent = new Intent(AddBusinessActivity.this, BusinessRecordActivity.class);
+                    startActivity(businessIntent);*/
                     Toast.makeText(AddBusinessActivity.this, "保存成功！", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -184,12 +189,17 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
             } else {
                 uri = imageUri;
             }
-            String[] proj = {MediaStore.Images.Media.DATA};
-            Cursor imageCursor = managedQuery(uri, proj, null, null, null);
-            int actual_image_column_index = imageCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            imageCursor.moveToFirst();
-            String img_path = imageCursor.getString(actual_image_column_index);
+
             Log.i("info", "根据图片路径获取到的uri----->" + uri.toString());
+
+
+            String img_path = "";
+            // 是否是从图库选择图片
+            if (DocumentsContract.isDocumentUri(this, uri)) {
+                img_path = ImageUtils.getPath(this, uri);
+            } else {
+                img_path = ImageUtils.selectImage(this, data);
+            }
             image = img_path;
             ImageUtils.useImageLoaderSetImage(imageLoader, iv_business, image);
         }
@@ -205,24 +215,29 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
      * 保存业务记录
      */
     private void saveOrUpdateBusiness() {
-        db = helper.getWritableDatabase();
-        daoMaster = new DaoMaster(db);
-        daoSession = daoMaster.newSession();
-        businessDao = daoSession.getBusinessDao();
-        Business business = new Business();
-        business.setImage(image);
-        business.setBusinessInfo(et_business.getText().toString());
-        business.setPersonId(PersonActivity.personId);
 
-        Log.i("info", "得到的PersonId=========> " + PersonActivity.personId);
-        if (getIntent().hasExtra("businessId")) {
-            business.setDate(businessDao.queryBuilder().where(BusinessDao.Properties.Id.eq(businessId)).list().get(0).getDate());
-            businessDao.insertOrReplace(business);
-        }else  {
-            business.setDate(new Date());// 时间是唯一的，根据时间来创建业务
-            businessDao.insert(business);
+        Long personId = Long.valueOf((String)SharePreferenceUtils.get(this, "personId", ""));
+        if (personId != 0) {
+            db = helper.getWritableDatabase();
+            daoMaster = new DaoMaster(db);
+            daoSession = daoMaster.newSession();
+            businessDao = daoSession.getBusinessDao();
+            Business business = new Business();
+            business.setImage(image);
+            business.setBusinessInfo(et_business.getText().toString());
+            business.setPersonId(personId);
+
+            Log.i("info", "得到的PersonId=========> " + SharePreferenceUtils.get(this, "personId", ""));
+            if (getIntent().hasExtra("businessId")) {
+                business.setDate(businessDao.queryBuilder().where(BusinessDao.Properties.Id.eq(businessId)).list().get(0).getDate());
+                businessDao.insertOrReplace(business);
+            } else {
+                business.setDate(new Date());// 时间是唯一的，根据时间来创建业务
+                businessDao.insert(business);
+            }
+            helper.close();
         }
-        helper.close();
+
 
     }
 
@@ -247,6 +262,7 @@ public class AddBusinessActivity extends AppCompatActivity implements View.OnCli
 
     /**
      * 设置数据
+     *
      * @param businessId
      */
     private void setData(long businessId) {

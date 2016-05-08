@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +18,7 @@ import com.lost.cuthair.dao.BusinessDao;
 import com.lost.cuthair.dao.DaoMaster;
 import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.utils.ImageUtils;
+import com.lost.cuthair.utils.SharePreferenceUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  * 业务记录界面
  * Created by lost on 2016/4/13.
  */
-public class BusinessRecordActivity extends AppCompatActivity {
+public class BusinessRecordActivity extends BaseActivity {
 
     private ListView lv;
     public static int screenWidth;
@@ -118,7 +118,8 @@ public class BusinessRecordActivity extends AppCompatActivity {
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
         businessDao = daoSession.getBusinessDao();
-        List<Business> businesses = businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(PersonActivity.personId)).list();
+        Long personId = Long.valueOf((String) SharePreferenceUtils.get(this, "personId", ""));
+        List<Business> businesses = businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
         Collections.reverse(businesses);
         Log.i("info", "是否有数据------》" + businesses.size());
         BusinessAdapter adapter = new BusinessAdapter(businesses, this);

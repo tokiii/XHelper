@@ -87,7 +87,7 @@ public class SortAdapter extends BaseAdapter implements SectionIndexer {
         if (list.get(position).getPath()!= null){
             ImageUtils.useImageLoaderSetImage(imageLoader, viewHolder.iv_head, list.get(position).getPath());
         }else {
-            viewHolder.iv_head.setImageResource(R.mipmap.ic_launcher);
+            viewHolder.iv_head.setImageResource(R.mipmap.image_headicon);
         }
 
 

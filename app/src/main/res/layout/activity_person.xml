@@ -70,10 +70,10 @@
 
                 <ImageView
                     android:id="@+id/iv_head"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:layout_gravity="center"
-                    android:src="@mipmap/ic_launcher" />
+                    android:src="@mipmap/image_headicon" />
 
             </LinearLayout>
 
@@ -115,8 +115,16 @@
                         android:layout_centerVertical="true"
                         android:text="业务记录"
                         android:textSize="16sp" />
+                    <ImageView
+                        android:layout_marginLeft="20dp"
+                        android:layout_toRightOf="@id/tv_record"
+                        android:id="@+id/iv_add"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@mipmap/jia"/>
 
                     <ImageView
+                        android:visibility="gone"
                         android:id="@+id/iv_pic1"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
@@ -125,6 +133,7 @@
                         android:src="@mipmap/ic_launcher" />
 
                     <ImageView
+                        android:visibility="gone"
                         android:id="@+id/iv_pic2"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
@@ -133,6 +142,7 @@
                         android:src="@mipmap/ic_launcher" />
 
                     <ImageView
+                        android:visibility="gone"
                         android:id="@+id/iv_pic3"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
