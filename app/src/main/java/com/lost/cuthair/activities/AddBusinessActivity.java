@@ -12,22 +12,27 @@ import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lost.cuthair.R;
+import com.lost.cuthair.adapters.ImageAdapter;
 import com.lost.cuthair.dao.Business;
 import com.lost.cuthair.dao.BusinessDao;
 import com.lost.cuthair.dao.DaoMaster;
 import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.utils.ImageUtils;
 import com.lost.cuthair.utils.SharePreferenceUtils;
+import com.lost.cuthair.utils.StringUtils;
 import com.lost.cuthair.views.SelectPicPopupWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +40,7 @@ import java.util.List;
  * 添加业务界面
  * Created by lost on 2016/4/13.
  */
-public class AddBusinessActivity extends BaseActivity implements View.OnClickListener {
+public class AddBusinessActivity extends BaseActivity implements View.OnClickListener, ImageAdapter.isDelete {
 
     private ImageView iv_business;
     private AppCompatEditText et_business;
@@ -52,8 +57,11 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     private String image;
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration configuration;
-
     private long businessId;
+    private List<String> lists;
+    private GridView gv_image;
+    private ImageAdapter imageAdapter;
+    private ImageView iv_big;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +87,23 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
             unableEdit();// 设置不可编辑状态
         }
 
+        imageAdapter = new ImageAdapter(this, lists);
+        imageAdapter.setIsDelete(this);// 设置监听接口
+        gv_image.setAdapter(imageAdapter);
+
+        gv_image.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(position));
+                Log.i("info", "是否点击了图片--");
+            }
+        });
+
+        if (lists.size()!= 0) {
+            ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(0));
+        }
+
+
         iv_delete = (ImageView) findViewById(R.id.iv_delete);
         iv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,8 +124,9 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         right.setOnClickListener(this);
         left.setOnClickListener(this);
         right.setText("添加");
-
-
+        gv_image = (GridView) findViewById(R.id.gv_image);
+        iv_big = (ImageView) findViewById(R.id.iv_big);
+        lists = new ArrayList<>();
         et_business = (AppCompatEditText) findViewById(R.id.et_business);
         iv_business = (ImageView) findViewById(R.id.iv_business);
         iv_business.setOnClickListener(this);
@@ -108,6 +134,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     }
 
 
+    // 选择图片弹出菜单
     private View.OnClickListener itemOnclick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -160,11 +187,6 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
                     right.setText("保存");
                 } else {
                     saveOrUpdateBusiness();
-                  /*  if (AppManager.getAppManager().hasActivity(BusinessRecordActivity.class)){
-                        AppManager.getAppManager().finishActivity(BusinessRecordActivity.class);
-                    }
-                    Intent businessIntent = new Intent(AddBusinessActivity.this, BusinessRecordActivity.class);
-                    startActivity(businessIntent);*/
                     Toast.makeText(AddBusinessActivity.this, "保存成功！", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -201,7 +223,17 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
                 img_path = ImageUtils.selectImage(this, data);
             }
             image = img_path;
-            ImageUtils.useImageLoaderSetImage(imageLoader, iv_business, image);
+
+
+            // 设置图片展示
+            if (lists.size()< 10) {
+                lists.add(image);
+                Log.i("info", "list-------->" + lists.toString());
+                imageAdapter.notifyDataSetChanged();
+            }else {
+                Toast.makeText(AddBusinessActivity.this, "图片不能大于十张！", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
@@ -223,7 +255,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
             daoSession = daoMaster.newSession();
             businessDao = daoSession.getBusinessDao();
             Business business = new Business();
-            business.setImage(image);
+            business.setImage(StringUtils.listToString(lists));
             business.setBusinessInfo(et_business.getText().toString());
             business.setPersonId(personId);
 
@@ -270,8 +302,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         Business business = businesses.get(0);
         et_business.setText(business.getBusinessInfo());
         image = business.getImage();
-        ImageUtils.useImageLoaderSetImage(imageLoader, iv_business, business.getImage());
-
+        lists = StringUtils.stringToList(image);
     }
 
     /**
@@ -288,5 +319,11 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         }
 
         finish();
+    }
+
+    @Override
+    public void deleted(List<String> list, int position) {
+        lists = list;
+        imageAdapter.notifyDataSetChanged();
     }
 }

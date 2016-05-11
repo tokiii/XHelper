@@ -20,6 +20,7 @@ import com.lost.cuthair.activities.AddBusinessActivity;
 import com.lost.cuthair.activities.BusinessRecordActivity;
 import com.lost.cuthair.dao.Business;
 import com.lost.cuthair.utils.DateUtil;
+import com.lost.cuthair.utils.StringUtils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -90,7 +91,7 @@ public class BusinessAdapter extends BaseAdapter {
                         .cacheOnDisk(true)
                         .bitmapConfig(Bitmap.Config.RGB_565)
                         .build();
-                String imageUrl = ImageDownloader.Scheme.FILE.wrap(business.getImage());
+                String imageUrl = ImageDownloader.Scheme.FILE.wrap(StringUtils.stringToList(business.getImage()).get(0));
                 imageLoader.displayImage(imageUrl, iv_left, options);
             } else {
                 iv_left.setVisibility(View.GONE);

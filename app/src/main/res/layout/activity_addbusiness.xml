@@ -23,14 +23,15 @@
 
 
         <ImageView
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_below="@id/et_business"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
             android:id="@+id/iv_business"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@mipmap/img_select_img"/>
+
+
 
 
 
@@ -41,6 +42,26 @@
             android:scaleType="fitEnd"
             android:layout_height="wrap_content"
             android:src="@mipmap/delete"/>
+
+
+
+
+        <GridView
+            android:layout_below="@id/iv_business"
+            android:id="@+id/gv_image"
+            android:numColumns="5"
+            android:layout_width="wrap_content"
+            android:layout_height="120dp"></GridView>
+
+
+        <ImageView
+            android:layout_centerHorizontal="true"
+            android:id="@+id/iv_big"
+            android:layout_below="@id/gv_image"
+            android:layout_width="match_parent"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_launcher"
+            android:layout_height="120dp" />
 
     </RelativeLayout>
 

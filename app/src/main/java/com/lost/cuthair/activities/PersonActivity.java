@@ -35,6 +35,7 @@ import com.lost.cuthair.dao.Person;
 import com.lost.cuthair.dao.PersonDao;
 import com.lost.cuthair.utils.ImageUtils;
 import com.lost.cuthair.utils.SharePreferenceUtils;
+import com.lost.cuthair.utils.StringUtils;
 import com.lost.cuthair.views.HeadChangePopWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -611,22 +612,22 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.VISIBLE);
                 pic3.setVisibility(View.VISIBLE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic3, businesses.get(2).getImage());
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
             } else if (businesses.size() == 1){
                 iv_add.setVisibility(View.GONE);
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.GONE);
                 pic3.setVisibility(View.GONE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
             }else if (businesses.size() == 2) {
                 iv_add.setVisibility(View.GONE);
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.VISIBLE);
                 pic3.setVisibility(View.GONE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
             }
 
             // 设置不可点击
@@ -657,22 +658,22 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.VISIBLE);
             pic3.setVisibility(View.VISIBLE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic3, businesses.get(2).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
         } else if (businesses.size() == 1){
             iv_add.setVisibility(View.GONE);
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.GONE);
             pic3.setVisibility(View.GONE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
         }else if (businesses.size() == 2) {
             iv_add.setVisibility(View.GONE);
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.VISIBLE);
             pic3.setVisibility(View.GONE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, businesses.get(0).getImage());
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, businesses.get(1).getImage());
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
         }
 
     }
