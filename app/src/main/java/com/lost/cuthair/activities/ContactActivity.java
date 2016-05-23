@@ -10,21 +10,28 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.lost.cuthair.R;
 import com.lost.cuthair.adapters.SortAdapter;
 import com.lost.cuthair.dao.Business;
@@ -35,6 +42,7 @@ import com.lost.cuthair.dao.Person;
 import com.lost.cuthair.dao.PersonDao;
 import com.lost.cuthair.model.SortModel;
 import com.lost.cuthair.utils.CharacterParser;
+import com.lost.cuthair.utils.ImageUtils;
 import com.lost.cuthair.utils.PinyinComparator;
 import com.lost.cuthair.utils.SharePreferenceUtils;
 import com.lost.cuthair.views.SideBar;
@@ -51,7 +59,7 @@ import java.util.List;
  */
 public class ContactActivity extends BaseActivity implements View.OnClickListener {
 
-    private ListView sortListView;
+    private SwipeMenuListView sortListView;
     private SideBar sideBar;
     private AppCompatTextView middle;
     private LinearLayout ll_add;
@@ -121,6 +129,26 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
         ll_add_phone.setOnClickListener(this);
         ll_search = (LinearLayout) findViewById(R.id.ll_search);
 
+
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
+                        0x3F, 0x25)));
+                // set item width
+                deleteItem.setWidth(ImageUtils.dp2px(getApplicationContext(), 90));
+                // set a icon
+                deleteItem.setIcon(R.mipmap.ic_delete);
+                // add to menu
+                menu.addMenuItem(deleteItem);
+            }
+        };
+
         // 点击从通讯录导入
         ll_add_phone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +184,8 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             }
         });
 
-        sortListView = (ListView) findViewById(R.id.country_lvcountry);
+        sortListView = (SwipeMenuListView) findViewById(R.id.country_lvcountry);
+        sortListView.setMenuCreator(creator);
         sortListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -178,9 +207,21 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                deleteDialog(ContactActivity.this, position).show();
+
 
                 return true;
+            }
+        });
+
+        sortListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                switch (index) {
+                    case 0:
+                        deleteDialog(ContactActivity.this, position).show();
+                        break;
+                }
+                return false;
             }
         });
 
@@ -376,7 +417,7 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             adapter = new SortAdapter(this, SourceDateList);
             sortListView.setAdapter(adapter);
         }else {
-            sortListView.setAdapter(null);
+//            sortListView.setAdapter(null);
         }
 
         helper.close();
@@ -446,5 +487,38 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
                     }
                 });
         return builder.create();
+    }
+
+    // 定义一个变量，来标识是否退出
+    private static boolean isExit = false;
+
+    Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isExit = false;
+        }
+    };
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                    Toast.LENGTH_SHORT).show();
+            // 利用handler延迟发送更改状态信息
+            mHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+            finish();
+            System.exit(0);
+        }
     }
 }

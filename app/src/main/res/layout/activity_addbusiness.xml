@@ -1,71 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/addbusiness"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/addbusiness">
+    android:orientation="vertical">
 
-    <include layout="@layout/layout_head"/>
+    <include layout="@layout/layout_head"
+        android:id="@+id/head"/>
 
-    <RelativeLayout
+    <ScrollView
+        android:layout_below="@id/head"
+        android:layout_marginBottom="70dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.AppCompatEditText
-            android:layout_marginTop="20dp"
-            android:id="@+id/et_business"
+        android:layout_height="match_parent">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorFont"
-            android:background="@null"
-            android:hint="描述业务"/>
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/et_business"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:background="@null"
+                    android:hint="描述业务"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:textColor="@color/colorFont" />
 
 
-        <ImageView
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/et_business"
-            android:id="@+id/iv_business"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@mipmap/img_select_img"/>
-
-
-
-
-
-        <ImageView
-            android:id="@+id/iv_delete"
-            android:layout_alignParentBottom="true"
-            android:layout_width="match_parent"
-            android:scaleType="fitEnd"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/delete"/>
-
-
-
-
-        <GridView
-            android:layout_below="@id/iv_business"
-            android:id="@+id/gv_image"
-            android:numColumns="5"
-            android:layout_width="wrap_content"
-            android:layout_height="120dp"></GridView>
-
-
-        <ImageView
-            android:layout_centerHorizontal="true"
-            android:id="@+id/iv_big"
-            android:layout_below="@id/gv_image"
-            android:layout_width="match_parent"
-            android:scaleType="fitCenter"
-            android:src="@mipmap/ic_launcher"
-            android:layout_height="120dp" />
-
-    </RelativeLayout>
+                <ImageView
+                    android:id="@+id/iv_business"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_below="@id/et_business"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@mipmap/img_select_img" />
 
 
 
 
-</LinearLayout>
+                <!--   <GridView
+                       android:layout_below="@id/iv_business"
+                       android:id="@+id/gv_image"
+                       android:numColumns="1"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"></GridView>-->
+
+                <com.lost.cuthair.views.ImageListView
+                    android:layout_below="@id/iv_business"
+                    android:id="@+id/lv_business"
+                    android:divider="@android:color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"></com.lost.cuthair.views.ImageListView>
+
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+    <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@mipmap/delete" />
+
+</RelativeLayout>

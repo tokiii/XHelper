@@ -56,9 +56,7 @@ public class ImageAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         convertView = LayoutInflater.from(context).inflate(R.layout.item_image, null);
-
         ImageView imageView = (ImageView) convertView.findViewById(R.id.iv_records);
-
         TextView tv_delete = (TextView) convertView.findViewById(R.id.tv_delete);
         tv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +66,12 @@ public class ImageAdapter extends BaseAdapter {
                 notifyDataSetChanged();
             }
         });
+       /* Bitmap bitmap = ImageUtils.getSmallBitmap(list.get(position));
+        Drawable drawable = new BitmapDrawable(bitmap);
+        int maxHeight = ImageUtils.dp2px(context, 300);
+        int height = (int) ((float) relativeLayout.getWidth()/drawable.getMinimumWidth() * drawable.getMinimumHeight());
+        if (height > maxHeight) height = maxHeight;
+        relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, height));*/
 
         ImageUtils.useImageLoaderSetImage(imageLoader, imageView, list.get(position));
         return convertView;

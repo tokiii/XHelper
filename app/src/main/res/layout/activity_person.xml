@@ -119,8 +119,9 @@
                         android:layout_marginLeft="20dp"
                         android:layout_toRightOf="@id/tv_record"
                         android:id="@+id/iv_add"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_height="30dp"
                         android:src="@mipmap/jia"/>
 
                     <ImageView
@@ -177,7 +178,7 @@
                         android:layout_height="wrap_content"
                         android:text="会员信息" />
 
-                    <TextView
+                  <!--  <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
@@ -216,7 +217,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textColor="@android:color/black"
-                        android:textSize="10sp" />
+                        android:textSize="10sp" />-->
 
                 </LinearLayout>
 

@@ -25,6 +25,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lost.cuthair.R;
 import com.lost.cuthair.dao.Business;
@@ -56,11 +57,11 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
     private EditText et_height;
     private EditText et_body_type;
     private EditText et_hate;
-    private EditText et_money;
-    private EditText et_discount;
+//    private EditText et_money;
+//    private EditText et_discount;
     private EditText et_remark;
     private EditText et_label;
-    private EditText et_number;
+//    private EditText et_number;
     private EditText et_color;
     private EditText et_weixin;
     private EditText et_qq;
@@ -97,11 +98,11 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
     private String constellation;
     private String phone;
     private String address;
-    private String money;
-    private String discount;
+    private String money = "1";
+    private String discount = "1";
     private String label;
     private String remark;
-    private String number;
+    private String number = "1";
     private String image;
     private String job;
     private long personId;
@@ -166,10 +167,10 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         et_birthday = (TextView) findViewById(R.id.et_birthday);
         et_birthday.setOnClickListener(this);
         et_address = (EditText) findViewById(R.id.et_address);
-        et_money = (EditText) findViewById(R.id.et_money);
-        et_discount = (EditText) findViewById(R.id.et_discount);
+//        et_money = (EditText) findViewById(R.id.et_money);
+//        et_discount = (EditText) findViewById(R.id.et_discount);
         et_label = (EditText) findViewById(R.id.et_label);
-        et_number = (EditText) findViewById(R.id.et_number);
+//        et_number = (EditText) findViewById(R.id.et_number);
         rl_business = (RelativeLayout) findViewById(R.id.rl_business);
         et_remark = (EditText) findViewById(R.id.et_remark);
         rl_business.setOnClickListener(this);
@@ -242,6 +243,14 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 if (isChecked) {
                     if (isNewCreate) {
                         isSave = true;
+                        if (TextUtils.isEmpty(et_name.getText())) {
+                            Toast.makeText(PersonActivity.this, "姓名不能为空！", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (TextUtils.isEmpty(et_phone.getText())) {
+                            Toast.makeText(PersonActivity.this, "手机号不能为空！", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         save();
                         finish();
                     } else {
@@ -249,6 +258,14 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                         setAbleEdit();// 设置可编辑
                     }
                 } else {
+                    if (TextUtils.isEmpty(et_name.getText())) {
+                        Toast.makeText(PersonActivity.this, "姓名不能为空！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (TextUtils.isEmpty(et_phone.getText())) {
+                        Toast.makeText(PersonActivity.this, "手机号不能为空！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     save();
                     finish();
                 }
@@ -368,14 +385,16 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         et_height.setEnabled(false);
         et_body_type.setEnabled(false);
         et_hate.setEnabled(false);
-        et_number.setEnabled(false);
-        et_money.setEnabled(false);
+//        et_number.setEnabled(false);
+//        et_money.setEnabled(false);
         et_label.setEnabled(false);
-        et_discount.setEnabled(false);
+//        et_discount.setEnabled(false);
         et_remark.setEnabled(false);
         et_color.setEnabled(false);
         et_weixin.setEnabled(false);
         et_qq.setEnabled(false);
+        rb_man.setEnabled(false);
+        rb_woman.setEnabled(false);
         et_phone.setEnabled(false);
         et_birthday.setEnabled(false);
         et_address.setEnabled(false);
@@ -393,10 +412,12 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         et_height.setEnabled(true);
         et_body_type.setEnabled(true);
         et_hate.setEnabled(true);
-        et_number.setEnabled(true);
+//        et_number.setEnabled(true);
         et_remark.setEnabled(true);
-        et_money.setEnabled(true);
-        et_discount.setEnabled(true);
+        rb_man.setEnabled(true);
+        rb_woman.setEnabled(true);
+//        et_money.setEnabled(true);
+//        et_discount.setEnabled(true);
         et_constellation.setEnabled(true);
         et_label.setEnabled(true);
         et_color.setEnabled(true);
@@ -424,7 +445,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             Log.i("info", "图片的URI------->" + uri);
 
             // 是否是从图库选择图片
-            if (DocumentsContract.isDocumentUri(this, uri)){
+            if (DocumentsContract.isDocumentUri(this, uri) || requestCode == SELECT_CAMERA){
                 ImageUtils.setImageFromFilePath(ImageUtils.getPath(this, uri), iv_head);
                 image = ImageUtils.getPath(this, uri);
             }else {
@@ -465,9 +486,9 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         job = et_job.getText().toString();
         label = et_label.getText().toString();
         remark = et_remark.getText().toString();
-        money = et_money.getText().toString();
-        discount = et_discount.getText().toString();
-        number = et_number.getText().toString();
+//        money = et_money.getText().toString();
+//        discount = et_discount.getText().toString();
+//        number = et_number.getText().toString();
         Person person = new Person();
 
         person = setToPerson(person);
@@ -570,10 +591,10 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             et_height.setText(height);
             et_body_type.setText(size);
             et_hate.setText(hate);
-            et_number.setText(number);
-            et_money.setText(money);
+//            et_number.setText(number);
+//            et_money.setText(money);
             et_label.setText(label);
-            et_discount.setText(discount);
+//            et_discount.setText(discount);
             et_remark.setText(remark);
             et_color.setText(color);
             et_weixin.setText(weixin);

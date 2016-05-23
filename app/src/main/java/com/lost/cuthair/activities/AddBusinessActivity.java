@@ -12,8 +12,6 @@ import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,12 +25,15 @@ import com.lost.cuthair.dao.DaoSession;
 import com.lost.cuthair.utils.ImageUtils;
 import com.lost.cuthair.utils.SharePreferenceUtils;
 import com.lost.cuthair.utils.StringUtils;
+import com.lost.cuthair.utils.Utils;
+import com.lost.cuthair.views.ImageListView;
 import com.lost.cuthair.views.SelectPicPopupWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -59,9 +60,10 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     private ImageLoaderConfiguration configuration;
     private long businessId;
     private List<String> lists;
-    private GridView gv_image;
+//    private GridView gv_image;
+    private ImageListView lv_business;
     private ImageAdapter imageAdapter;
-    private ImageView iv_big;
+//    private ImageView iv_big;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,21 +89,33 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
             unableEdit();// 设置不可编辑状态
         }
 
+        Collections.reverse(lists);
         imageAdapter = new ImageAdapter(this, lists);
+
         imageAdapter.setIsDelete(this);// 设置监听接口
-        gv_image.setAdapter(imageAdapter);
+        lv_business.setAdapter(imageAdapter);
 
-        gv_image.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(position));
-                Log.i("info", "是否点击了图片--");
-            }
-        });
+//        ListAdapter listAdapter = lv_business.getAdapter();
+//        if (listAdapter == null) {
+//            return;
+//        }
+//        View listItem = listAdapter.getView(0, null, lv_business);
+//        listItem.measure(0, 0);
+//        listItem.getMeasuredHeight();
+//        new ListViewUtils().setListViewHeightBasedOnChildren(lv_business);
+//        gv_image.setAdapter(imageAdapter);
 
-        if (lists.size()!= 0) {
-            ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(0));
-        }
+//        gv_image.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(position));
+//                Log.i("info", "是否点击了图片--");
+//            }
+//        });
+
+//        if (lists.size()!= 0) {
+//            ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(0));
+//        }
 
 
         iv_delete = (ImageView) findViewById(R.id.iv_delete);
@@ -124,8 +138,9 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         right.setOnClickListener(this);
         left.setOnClickListener(this);
         right.setText("添加");
-        gv_image = (GridView) findViewById(R.id.gv_image);
-        iv_big = (ImageView) findViewById(R.id.iv_big);
+//        gv_image = (GridView) findViewById(R.id.gv_image);
+        lv_business = (ImageListView) findViewById(R.id.lv_business);
+//        iv_big = (ImageView) findViewById(R.id.iv_big);
         lists = new ArrayList<>();
         et_business = (AppCompatEditText) findViewById(R.id.et_business);
         iv_business = (ImageView) findViewById(R.id.iv_business);
@@ -176,6 +191,8 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
 
         switch (v.getId()) {
             case R.id.iv_business:
+                View view = this.getCurrentFocus();
+                Utils.closeInput(this, view);
                 picPopupWindow = new SelectPicPopupWindow(this, itemOnclick);
                 picPopupWindow.showAtLocation(AddBusinessActivity.this.findViewById(R.id.addbusiness), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
                 break;
@@ -217,7 +234,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
 
             String img_path = "";
             // 是否是从图库选择图片
-            if (DocumentsContract.isDocumentUri(this, uri)) {
+            if (DocumentsContract.isDocumentUri(this, uri)|| requestCode == SELECT_CAMERA) {
                 img_path = ImageUtils.getPath(this, uri);
             } else {
                 img_path = ImageUtils.selectImage(this, data);
@@ -229,6 +246,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
             if (lists.size()< 10) {
                 lists.add(image);
                 Log.i("info", "list-------->" + lists.toString());
+                Collections.reverse(lists);
                 imageAdapter.notifyDataSetChanged();
             }else {
                 Toast.makeText(AddBusinessActivity.this, "图片不能大于十张！", Toast.LENGTH_SHORT).show();
