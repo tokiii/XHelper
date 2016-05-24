@@ -26,11 +26,13 @@ public class ImageAdapter extends BaseAdapter {
     private ImageLoaderConfiguration configuration;
     private ImageLoader imageLoader;
     private isDelete isDelete;
+    private boolean isclick;
 
 
-    public ImageAdapter(Context context, List<String> list) {
+    public ImageAdapter(Context context, List<String> list, boolean isclick) {
         this.context = context;
         this.list = list;
+        this.isclick = isclick;
         configuration = ImageLoaderConfiguration
                 .createDefault(context);
         imageLoader = ImageLoader.getInstance();
@@ -58,21 +60,17 @@ public class ImageAdapter extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.item_image, null);
         ImageView imageView = (ImageView) convertView.findViewById(R.id.iv_records);
         TextView tv_delete = (TextView) convertView.findViewById(R.id.tv_delete);
-        tv_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                list.remove(position);
-                isDelete.deleted(list, position);
-                notifyDataSetChanged();
-            }
-        });
-       /* Bitmap bitmap = ImageUtils.getSmallBitmap(list.get(position));
-        Drawable drawable = new BitmapDrawable(bitmap);
-        int maxHeight = ImageUtils.dp2px(context, 300);
-        int height = (int) ((float) relativeLayout.getWidth()/drawable.getMinimumWidth() * drawable.getMinimumHeight());
-        if (height > maxHeight) height = maxHeight;
-        relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, height));*/
 
+        if (isclick) {
+            tv_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    list.remove(position);
+                    isDelete.deleted(list, position);
+                    notifyDataSetChanged();
+                }
+            });
+        }
         ImageUtils.useImageLoaderSetImage(imageLoader, imageView, list.get(position));
         return convertView;
     }

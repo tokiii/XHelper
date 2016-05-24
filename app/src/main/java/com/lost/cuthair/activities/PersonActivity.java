@@ -628,7 +628,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
 
             Log.i("info", "业务大小为....> " + businesses.size());
             Log.i("info", "personId....> " + personId);
-            if (businesses.size() > 3) {
+            if (businesses.size() > 2) {
                 iv_add.setVisibility(View.GONE);
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.VISIBLE);
@@ -674,7 +674,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
 
         Log.i("info", "业务大小为....> " + businesses.size());
         Log.i("info", "personId....> " + personId);
-        if (businesses.size() > 3) {
+        if (businesses.size() > 2) {
             iv_add.setVisibility(View.GONE);
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.VISIBLE);

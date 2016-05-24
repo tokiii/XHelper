@@ -9,6 +9,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatEditText;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -60,10 +61,8 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     private ImageLoaderConfiguration configuration;
     private long businessId;
     private List<String> lists;
-//    private GridView gv_image;
     private ImageListView lv_business;
     private ImageAdapter imageAdapter;
-//    private ImageView iv_big;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,35 +86,12 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
             setData(businessId);
             right.setText("编辑");
             unableEdit();// 设置不可编辑状态
+        } else {
+            Collections.reverse(lists);
+            imageAdapter = new ImageAdapter(this, lists, true);
+            imageAdapter.setIsDelete(this);// 设置监听接口
+            lv_business.setAdapter(imageAdapter);
         }
-
-        Collections.reverse(lists);
-        imageAdapter = new ImageAdapter(this, lists);
-
-        imageAdapter.setIsDelete(this);// 设置监听接口
-        lv_business.setAdapter(imageAdapter);
-
-//        ListAdapter listAdapter = lv_business.getAdapter();
-//        if (listAdapter == null) {
-//            return;
-//        }
-//        View listItem = listAdapter.getView(0, null, lv_business);
-//        listItem.measure(0, 0);
-//        listItem.getMeasuredHeight();
-//        new ListViewUtils().setListViewHeightBasedOnChildren(lv_business);
-//        gv_image.setAdapter(imageAdapter);
-
-//        gv_image.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(position));
-//                Log.i("info", "是否点击了图片--");
-//            }
-//        });
-
-//        if (lists.size()!= 0) {
-//            ImageUtils.useImageLoaderSetImage(imageLoader, iv_big, lists.get(0));
-//        }
 
 
         iv_delete = (ImageView) findViewById(R.id.iv_delete);
@@ -138,9 +114,7 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         right.setOnClickListener(this);
         left.setOnClickListener(this);
         right.setText("添加");
-//        gv_image = (GridView) findViewById(R.id.gv_image);
         lv_business = (ImageListView) findViewById(R.id.lv_business);
-//        iv_big = (ImageView) findViewById(R.id.iv_big);
         lists = new ArrayList<>();
         et_business = (AppCompatEditText) findViewById(R.id.et_business);
         iv_business = (ImageView) findViewById(R.id.iv_business);
@@ -203,6 +177,12 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
                     enableEdit(); //设置可编辑状态
                     right.setText("保存");
                 } else {
+                    String imagelist = StringUtils.listToString(lists);
+                    Log.i("info", "保存的图片字符串---" + imagelist);
+                    if (imagelist == "" && TextUtils.isEmpty(et_business.getText())) {
+                        Toast.makeText(this, "不能保存空的内容！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     saveOrUpdateBusiness();
                     Toast.makeText(AddBusinessActivity.this, "保存成功！", Toast.LENGTH_SHORT).show();
                     finish();
@@ -234,23 +214,26 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
 
             String img_path = "";
             // 是否是从图库选择图片
-            if (DocumentsContract.isDocumentUri(this, uri)|| requestCode == SELECT_CAMERA) {
+            if (DocumentsContract.isDocumentUri(this, uri) || requestCode == SELECT_CAMERA) {
                 img_path = ImageUtils.getPath(this, uri);
             } else {
                 img_path = ImageUtils.selectImage(this, data);
             }
-            image = img_path;
+            if (img_path != ""){
+                image = img_path;
 
 
-            // 设置图片展示
-            if (lists.size()< 10) {
-                lists.add(image);
-                Log.i("info", "list-------->" + lists.toString());
-                Collections.reverse(lists);
-                imageAdapter.notifyDataSetChanged();
-            }else {
-                Toast.makeText(AddBusinessActivity.this, "图片不能大于十张！", Toast.LENGTH_SHORT).show();
+                // 设置图片展示
+                if (lists.size() < 10) {
+                    lists.add(image);
+                    Log.i("info", "list-------->" + lists.toString());
+                    Collections.reverse(lists);
+                    imageAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(AddBusinessActivity.this, "图片不能大于十张！", Toast.LENGTH_SHORT).show();
+                }
             }
+
 
         }
     }
@@ -265,15 +248,18 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
      * 保存业务记录
      */
     private void saveOrUpdateBusiness() {
-
-        Long personId = Long.valueOf((String)SharePreferenceUtils.get(this, "personId", ""));
+        Long personId = Long.valueOf((String) SharePreferenceUtils.get(this, "personId", ""));
         if (personId != 0) {
             db = helper.getWritableDatabase();
             daoMaster = new DaoMaster(db);
             daoSession = daoMaster.newSession();
             businessDao = daoSession.getBusinessDao();
             Business business = new Business();
-            business.setImage(StringUtils.listToString(lists));
+            if (lists.size() != 0) {
+                String imagelist = StringUtils.listToString(lists);
+                Log.i("info", "保存的图片字符串---" + imagelist);
+                business.setImage(imagelist);
+            }
             business.setBusinessInfo(et_business.getText().toString());
             business.setPersonId(personId);
 
@@ -297,6 +283,10 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     private void enableEdit() {
         et_business.setEnabled(true);
         iv_business.setEnabled(true);
+        lv_business.setClickable(true);
+        imageAdapter = new ImageAdapter(this, lists, true);
+        imageAdapter.setIsDelete(this);// 设置监听接口
+        lv_business.setAdapter(imageAdapter);
 
     }
 
@@ -307,6 +297,9 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
     private void unableEdit() {
         et_business.setEnabled(false);
         iv_business.setEnabled(false);
+        lv_business.setEnabled(false);
+        imageAdapter = new ImageAdapter(this, lists, false);
+        lv_business.setAdapter(imageAdapter);
     }
 
 

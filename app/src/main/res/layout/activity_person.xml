@@ -250,18 +250,17 @@
 
                     <RadioGroup
                         android:id="@+id/rg_sex"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
                         android:layout_weight="1"
+                        android:layout_gravity="center_vertical"
                         android:gravity="end"
                         android:orientation="horizontal">
 
                         <RadioButton
                             android:id="@+id/rb_man"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:layout_marginRight="5dp"
                             android:background="@drawable/sex"
                             android:button="@null" />
@@ -275,8 +274,8 @@
 
                         <RadioButton
                             android:id="@+id/rb_woman"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:layout_marginRight="5dp"
                             android:background="@drawable/sex"
                             android:button="@null" />
@@ -311,7 +310,7 @@
 
                     <EditText
                         android:id="@+id/et_phone"
-                        android:layout_width="200dp"
+                        android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="10dp"
@@ -320,6 +319,7 @@
 
 
                     <ImageView
+                        android:layout_marginLeft="40dp"
                         android:id="@+id/iv_call"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

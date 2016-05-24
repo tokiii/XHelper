@@ -1,5 +1,7 @@
 package com.lost.cuthair.utils;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class StringUtils {
      */
     public static List<String>  stringToList(String s) {
         String[] strs = s.split(",");
+        Log.i("info", "转换成的字符串-数组--->" + s);
         List<String> list = new ArrayList<>();
         for (int i = 0; i < strs.length; i++) {
             list.add(strs[i]);
