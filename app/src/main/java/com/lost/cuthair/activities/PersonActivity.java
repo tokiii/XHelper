@@ -459,7 +459,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                     } else {
                         image = ImageUtils.selectImage(this, uri);
                     }
-                    Toast.makeText(PersonActivity.this, "得到的图片路径为--->" + image, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(PersonActivity.this, "得到的图片路径为--->" + image, Toast.LENGTH_LONG).show();
                     ImageUtils.setImageFromFilePath(image, iv_head);
                     break;
             }
