@@ -1,8 +1,8 @@
 package com.lost.cuthair.activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.DatePickerDialog;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,7 +10,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.TextUtils;
@@ -41,6 +41,7 @@ import com.lost.cuthair.views.HeadChangePopWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -57,11 +58,11 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
     private EditText et_height;
     private EditText et_body_type;
     private EditText et_hate;
-//    private EditText et_money;
+    //    private EditText et_money;
 //    private EditText et_discount;
     private EditText et_remark;
     private EditText et_label;
-//    private EditText et_number;
+    //    private EditText et_number;
     private EditText et_color;
     private EditText et_weixin;
     private EditText et_qq;
@@ -137,14 +138,14 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         if (getIntent().hasExtra("date")) {
             isFromHome = true;
             date = getIntent().getStringExtra("date");
-        }else  {
+        } else {
             date = new Date().toString();
         }
 
         /**
          * 适配数据
          */
-            setData();
+        setData();
     }
 
     // End Of Content View Elements
@@ -192,7 +193,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 if (isChecked) {
                     tv_man.setTextColor(getResources().getColor(R.color.colorBackGround));
                     sex = true;// 设置为男
-                }else {
+                } else {
                     tv_man.setTextColor(Color.BLACK);
                 }
             }
@@ -204,7 +205,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 if (isChecked) {
                     tv_woman.setTextColor(getResources().getColor(R.color.colorBackGround));
                     sex = false;// 设置为女
-                }else {
+                } else {
                     tv_woman.setTextColor(Color.BLACK);
                 }
             }
@@ -288,10 +289,12 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 case R.id.btn_take_photo:
                     Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-                    String fileName = dateFormat.format(new Date());
-                    ContentValues values = new ContentValues();
-                    values.put(MediaStore.Images.Media.TITLE, fileName);
-                    imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    String fileName = dateFormat.format(new Date()) + "_image.jpg";
+                    File tempFile = new File(Environment
+                            .getExternalStorageDirectory(),
+                            fileName);
+                    image = tempFile.getAbsolutePath();
+                    imageUri = Uri.fromFile(tempFile);
                     photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(photoIntent, SELECT_CAMERA);
                     break;
@@ -329,7 +332,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 // 查看更多业务时，创建新的业务，此时会自动保存当前界面数据到数据库，并与之后操作进行关联
                 save();
                 Intent intent = new Intent(PersonActivity.this, BusinessRecordActivity.class);
-                if (image != null){
+                if (image != null) {
                     intent.putExtra("imagePath", image); //发送图片路径
                 }
                 startActivity(intent);
@@ -343,7 +346,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                         et_birthday.setText(monthOfYear + "月" + dayOfMonth + "日" + "(" + year + "年" + ")");
 
                     }
-                }, 2016, 4,4).show();
+                }, 2016, 4, 4).show();
                 break;
 
             // 调用系统打电话功能
@@ -351,14 +354,14 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 if (!TextUtils.isEmpty(et_phone.getText())) {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if(this.checkSelfPermission(Manifest.permission.CALL_PHONE)== PackageManager.PERMISSION_GRANTED) {
-                            Intent telIntent=new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+et_phone.getText().toString()));
+                        if (this.checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                            Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + et_phone.getText().toString()));
                             startActivity(telIntent);
-                        }else{
+                        } else {
                             //
                         }
-                    }else{
-                        Intent telIntent=new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+et_phone.getText().toString()));
+                    } else {
+                        Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + et_phone.getText().toString()));
                         startActivity(telIntent);
                     }
                 }
@@ -430,32 +433,41 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
     }
 
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         Uri uri = null;
         if (resultCode == RESULT_OK) {
-            if (data != null && data.getData() != null) {
-                uri = data.getData();
-            } else {
-                uri = imageUri;
+
+            switch (requestCode) {
+                case SELECT_CAMERA:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        ImageUtils.setImageFromFilePath(image, iv_head);
+                    } else {
+                        ImageUtils.setImageFromFilePath(image, iv_head);
+//                LogUtils.put(uri.toString() + "path==" +image);
+                    }
+
+                    break;
+                case SELECT_PICTURE:
+                    uri = data.getData();
+                    // 是否是从图库选择图片
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        image = ImageUtils.getPath(this, uri);
+                    } else {
+                        image = ImageUtils.selectImage(this, uri);
+                    }
+                    Toast.makeText(PersonActivity.this, "得到的图片路径为--->" + image, Toast.LENGTH_LONG).show();
+                    ImageUtils.setImageFromFilePath(image, iv_head);
+                    break;
             }
-
-            Log.i("info", "图片的URI------->" + uri);
-
-            // 是否是从图库选择图片
-            if (DocumentsContract.isDocumentUri(this, uri) || requestCode == SELECT_CAMERA){
-                ImageUtils.setImageFromFilePath(ImageUtils.getPath(this, uri), iv_head);
-                image = ImageUtils.getPath(this, uri);
-            }else {
-                ImageUtils.setImageFromFilePath(ImageUtils.selectImage(this, data), iv_head);
-                image = ImageUtils.selectImage(this, data);
-            }
+//            Log.i("info", "图片的URI------->" + uri);
+//            LogUtils.put(uri.toString() + "path==" +image);
 
 
 
-            Log.i("info", "图片的绝对路径------->" + ImageUtils.getPath(this, uri));
         }
     }
 
@@ -496,9 +508,9 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         Log.i("info", "person----number--->" + number);
         if (isFromHome && getIntent().hasExtra("date")) {
             personDao.insertOrReplace(setToPerson(personDao.queryBuilder().where(PersonDao.Properties.Date.eq(getIntent().getStringExtra("date"))).list().get(0)));
-        } else if (personId != 0){
+        } else if (personId != 0) {
             personDao.insertOrReplace(setToPerson(personDao.queryBuilder().where(PersonDao.Properties.Id.eq(personId)).list().get(0)));
-        }else {
+        } else {
             personDao.insert(person);
         }
         personId = personDao.queryBuilder().where(PersonDao.Properties.Date.eq(date)).list().get(0).getId();
@@ -557,6 +569,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
     private ImageView pic2;
     private ImageView pic3;
     private ImageView iv_add;
+
     private void setData() {
         if (getIntent().hasExtra("date") && !getIntent().hasExtra("name")) {
             Log.i("info", "是否获得到数据---》" + getIntent().hasExtra("date"));
@@ -611,7 +624,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             if (sex) {
                 rb_man.setChecked(true);
                 tv_man.setTextColor(getResources().getColor(R.color.colorBackGround));
-            }else {
+            } else {
                 rb_woman.setChecked(true);
                 tv_woman.setTextColor(getResources().getColor(R.color.colorBackGround));
             }
@@ -622,8 +635,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             daoMaster = new DaoMaster(db);
             daoSession = daoMaster.newSession();
             BusinessDao businessDao = daoSession.getBusinessDao();
-            List<Business> businesses =  businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
-
+            List<Business> businesses = businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
 
 
             Log.i("info", "业务大小为....> " + businesses.size());
@@ -633,22 +645,22 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.VISIBLE);
                 pic3.setVisibility(View.VISIBLE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
-            } else if (businesses.size() == 1){
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
+            } else if (businesses.size() == 1) {
                 iv_add.setVisibility(View.GONE);
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.GONE);
                 pic3.setVisibility(View.GONE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-            }else if (businesses.size() == 2) {
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+            } else if (businesses.size() == 2) {
                 iv_add.setVisibility(View.GONE);
                 pic1.setVisibility(View.VISIBLE);
                 pic2.setVisibility(View.VISIBLE);
                 pic3.setVisibility(View.GONE);
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-                ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+                ImageUtils.useImageLoaderSetImage(imageLoader, pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
             }
 
             // 设置不可点击
@@ -670,7 +682,7 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
         BusinessDao businessDao = daoSession.getBusinessDao();
-        List<Business> businesses =  businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
+        List<Business> businesses = businessDao.queryBuilder().where(BusinessDao.Properties.PersonId.eq(personId)).list();
 
         Log.i("info", "业务大小为....> " + businesses.size());
         Log.i("info", "personId....> " + personId);
@@ -679,28 +691,29 @@ public class PersonActivity extends BaseActivity implements View.OnClickListener
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.VISIBLE);
             pic3.setVisibility(View.VISIBLE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
-        } else if (businesses.size() == 1){
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic3, StringUtils.stringToList(businesses.get(2).getImage()).get(0));
+        } else if (businesses.size() == 1) {
             iv_add.setVisibility(View.GONE);
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.GONE);
             pic3.setVisibility(View.GONE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-        }else if (businesses.size() == 2) {
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+        } else if (businesses.size() == 2) {
             iv_add.setVisibility(View.GONE);
             pic1.setVisibility(View.VISIBLE);
             pic2.setVisibility(View.VISIBLE);
             pic3.setVisibility(View.GONE);
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
-            ImageUtils.useImageLoaderSetImage( imageLoader,pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic1, StringUtils.stringToList(businesses.get(0).getImage()).get(0));
+            ImageUtils.useImageLoaderSetImage(imageLoader, pic2, StringUtils.stringToList(businesses.get(1).getImage()).get(0));
         }
 
     }
 
     /**
      * 给person添加数据
+     *
      * @param person
      */
     private Person setToPerson(Person person) {

@@ -1,8 +1,8 @@
 package com.lost.cuthair.utils;
 
+import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -254,6 +254,7 @@ public class ImageUtils {
      * @param uri
      * @return
      */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         // DocumentProvider
@@ -373,23 +374,39 @@ public class ImageUtils {
      * @param data
      * @return
      */
-    public static String selectImage(Context context,Intent data){
-        Uri selectedImage = data.getData();
+    public static String selectImage(Context context,Uri data){
 //      Log.e(TAG, selectedImage.toString());
-        if(selectedImage!=null){
-            String uriStr=selectedImage.toString();
+       /* if(data!=null){
+            String uriStr=data.toString();
             String path=uriStr.substring(10,uriStr.length());
             if(path.startsWith("com.sec.android.gallery3d")){
                 return null;
             }
         }
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
-        Cursor cursor = context.getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+        Cursor cursor = context.getContentResolver().query(data,filePathColumn, null, null, null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String picturePath = cursor.getString(columnIndex);
         cursor.close();
-        return picturePath;
+        return picturePath;*/
+        String filename = "";
+        if (data.getScheme().toString().compareTo("content") == 0) {
+            Cursor cursor = context.getContentResolver().query(data,
+                    new String[] {MediaStore.Audio.Media.DATA}, null, null, null);
+            if (cursor.moveToFirst()) {
+                filename = cursor.getString(0);
+            }
+        }else if (data.getScheme().toString().compareTo("file") == 0)         //file:///开头的uri
+        {
+            filename = data.toString().replace("file://", "");
+            //替换file://
+            if(!filename.startsWith("/mnt")&& !filename.contains("storage")){
+                //加上"/mnt"头
+                filename = "/mnt" + filename;
+            }
+        }
+        return filename;
     }
 
 

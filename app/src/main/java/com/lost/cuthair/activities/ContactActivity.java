@@ -4,8 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -159,11 +159,14 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
                 if (ContextCompat.checkSelfPermission(ContactActivity.this,
                         Manifest.permission.READ_CONTACTS)
                         != PackageManager.PERMISSION_GRANTED) {
-                }else{
+                } else {
                     //
                 }
                 SharePreferenceUtils.put(ContactActivity.this, "personId", "0");
-                startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), 0);
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("vnd.android.cursor.item/phone_v2");
+                startActivityForResult(intent, 0);
             }
         });
 
@@ -216,8 +219,6 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-
-
                 return true;
             }
         });
@@ -250,7 +251,7 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
 
                 if (hasFocus) {
                     ll_search.setVisibility(View.GONE);
-                }else {
+                } else {
                     ll_search.setVisibility(View.VISIBLE);
                 }
             }
@@ -268,9 +269,9 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
                     filterData(s.toString());
                 }
 
-                if(s == "") {
+                if (s == "") {
                     ll_search.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     ll_search.setVisibility(View.GONE);
                 }
 
@@ -369,12 +370,13 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
         String userName = "";
         String userNumber = "";
 
-        if (resultCode == Activity.RESULT_OK) {
+        /*if (resultCode == Activity.RESULT_OK) {
             ContentResolver reContentResolverol = getContentResolver();
             Uri contactData = data.getData();
             @SuppressWarnings("deprecation")
-            Cursor cursor = managedQuery(contactData, null, null, null, null);
+            Cursor cursor = reContentResolverol.query(contactData, null, null, null, null);
             cursor.moveToFirst();
+            Toast.makeText(ContactActivity.this, "查询到-数量---》" + cursor.getCount(), Toast.LENGTH_SHORT).show();
             userName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             Cursor phone = reContentResolverol.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -385,16 +387,27 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             while (phone.moveToNext()) {
                 userNumber = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             }
+            cursor.close();
+            phone.close();*/
 
-//            Toast.makeText(ContactActivity.this, "点击的通讯录名字----》" + userName + "号码----->" + userNumber, Toast.LENGTH_SHORT).show();
+        if (resultCode == Activity.RESULT_OK) {
+            Uri contactData = data.getData();
+            CursorLoader cursorLoader = new CursorLoader(this, contactData, null, null, null, null);
+            Cursor cursor = cursorLoader.loadInBackground();
+            if (cursor.moveToFirst()) {
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                userName = name;
+                userNumber = phoneNumber;
 
-            Intent addIntent = new Intent(ContactActivity.this, PersonActivity.class);
-            addIntent.putExtra("name", userName);
-            addIntent.putExtra("number", userNumber);
-            startActivity(addIntent);
-
-
+                Intent addIntent = new Intent(ContactActivity.this, PersonActivity.class);
+                addIntent.putExtra("name", userName);
+                addIntent.putExtra("number", userNumber);
+                startActivity(addIntent);
+            }
+            cursor.close();
         }
+
 
     }
 
@@ -425,7 +438,7 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             Collections.sort(SourceDateList, pinyinComparator);
             adapter = new SortAdapter(this, SourceDateList);
             sortListView.setAdapter(adapter);
-        }else {
+        } else {
 //            sortListView.setAdapter(null);
         }
 
@@ -442,6 +455,7 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
 
     /**
      * 删除
+     *
      * @param date
      */
     private void deletePerson(String date) {
@@ -463,10 +477,6 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
         businessDao.deleteInTx(businesses);
 
         Toast.makeText(this, "删除成功！", Toast.LENGTH_SHORT).show();
-
-
-
-
 
 
     }
@@ -509,6 +519,7 @@ public class ContactActivity extends BaseActivity implements View.OnClickListene
             isExit = false;
         }
     };
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

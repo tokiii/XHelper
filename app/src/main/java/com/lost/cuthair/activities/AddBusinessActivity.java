@@ -1,11 +1,11 @@
 package com.lost.cuthair.activities;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatEditText;
@@ -32,6 +32,7 @@ import com.lost.cuthair.views.SelectPicPopupWindow;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,10 +133,12 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
                 case R.id.btn_take_photo:
                     Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-                    String fileName = dateFormat.format(new Date());
-                    ContentValues values = new ContentValues();
-                    values.put(MediaStore.Images.Media.TITLE, fileName);
-                    imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    String fileName = dateFormat.format(new Date()) + "_image.jpg";
+                    File tempFile = new File(Environment
+                            .getExternalStorageDirectory(),
+                            fileName);
+                    image = tempFile.getAbsolutePath();
+                    imageUri = Uri.fromFile(tempFile);
                     photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(photoIntent, SELECT_CAMERA);
                     break;
@@ -202,26 +205,26 @@ public class AddBusinessActivity extends BaseActivity implements View.OnClickLis
         super.onActivityResult(requestCode, resultCode, data);
 
         Uri uri = null;
+        String img_path = "";
         if (resultCode == RESULT_OK) {
-            if (data != null && data.getData() != null) {
-                uri = data.getData();
-            } else {
-                uri = imageUri;
-            }
 
-            Log.i("info", "根据图片路径获取到的uri----->" + uri.toString());
+            switch (requestCode) {
+                case SELECT_CAMERA:
+                    img_path = image;
+                    break;
 
-
-            String img_path = "";
-            // 是否是从图库选择图片
-            if (DocumentsContract.isDocumentUri(this, uri) || requestCode == SELECT_CAMERA) {
-                img_path = ImageUtils.getPath(this, uri);
-            } else {
-                img_path = ImageUtils.selectImage(this, data);
+                case SELECT_PICTURE:
+                    uri = data.getData();
+                    // 是否是从图库选择图片
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        img_path = ImageUtils.getPath(this, uri);
+                    } else {
+                        img_path = ImageUtils.selectImage(this, uri);
+                    }
+                    break;
             }
             if (img_path != ""){
                 image = img_path;
-
 
                 // 设置图片展示
                 if (lists.size() < 10) {
