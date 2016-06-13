@@ -8,12 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -375,21 +373,6 @@ public class ImageUtils {
      * @return
      */
     public static String selectImage(Context context,Uri data){
-//      Log.e(TAG, selectedImage.toString());
-       /* if(data!=null){
-            String uriStr=data.toString();
-            String path=uriStr.substring(10,uriStr.length());
-            if(path.startsWith("com.sec.android.gallery3d")){
-                return null;
-            }
-        }
-        String[] filePathColumn = { MediaStore.Images.Media.DATA };
-        Cursor cursor = context.getContentResolver().query(data,filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String picturePath = cursor.getString(columnIndex);
-        cursor.close();
-        return picturePath;*/
         String filename = "";
         if (data.getScheme().toString().compareTo("content") == 0) {
             Cursor cursor = context.getContentResolver().query(data,
@@ -422,36 +405,5 @@ public class ImageUtils {
         return (int) (dp * scale + 0.5f);
     }
 
-
-    /**
-     *
-     * @param drawable
-     * @return
-     */
-    public static Bitmap drawableToBitmap(Drawable drawable) {
-
-
-
-        Bitmap bitmap = Bitmap.createBitmap(
-
-                drawable.getIntrinsicWidth(),
-
-                drawable.getIntrinsicHeight(),
-
-                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-
-                        : Bitmap.Config.RGB_565);
-
-        Canvas canvas = new Canvas(bitmap);
-
-        //canvas.setBitmap(bitmap);
-
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-
-        drawable.draw(canvas);
-
-        return bitmap;
-
-    }
 
 }

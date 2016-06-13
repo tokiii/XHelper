@@ -47,7 +47,7 @@ public class CustomCrashHandler implements UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread thread, Throwable ex) {
 		//将一些信息保存到SDcard中
-		savaInfoToSD(mContext, ex);
+		saveInfoToSD(mContext, ex);
 
 		//提示用户程序即将退出
 		showToast(mContext, "很抱歉，程序遭遇异常，即将退出！");
@@ -67,7 +67,7 @@ public class CustomCrashHandler implements UncaughtExceptionHandler {
 	/**
 	 * 为我们的应用程序设置自定义Crash处理
 	 */
-	public void setCustomCrashHanler(Context context){
+	public void setCustomCrashHandler(Context context){
 		mContext = context;
 		Thread.setDefaultUncaughtExceptionHandler(this);
 	}
@@ -137,7 +137,7 @@ public class CustomCrashHandler implements UncaughtExceptionHandler {
 	 * @param ex
 	 * @return
 	 */
-	private String savaInfoToSD(Context context, Throwable ex){
+	private String saveInfoToSD(Context context, Throwable ex){
 		String fileName = null;
 		StringBuffer sb = new StringBuffer();
 

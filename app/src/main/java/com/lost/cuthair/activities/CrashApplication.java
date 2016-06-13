@@ -10,7 +10,7 @@ public class CrashApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		CustomCrashHandler mCustomCrashHandler = CustomCrashHandler.getInstance();
-		mCustomCrashHandler.setCustomCrashHanler(getApplicationContext());
+		mCustomCrashHandler.setCustomCrashHandler(getApplicationContext());
 	}
 	
 	
